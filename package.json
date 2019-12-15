@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "css-loader": "^3.3.2",
+    "dotenv": "^8.2.0",
     "sass-loader": "^8.0.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.1",
@@ -18,7 +19,10 @@
   },
   "dependencies": {
     "d3": "^5.14.2",
+    "dotenv-webpack": "^1.7.0",
+    "firebase": "^7.6.0",
     "materialize-css": "^1.0.0",
-    "sass": "^1.23.7"
+    "sass": "^1.23.7",
+    "dotenv": "^8.2.0"
   }
 }

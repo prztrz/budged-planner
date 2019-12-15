@@ -1,4 +1,5 @@
 var path = require("path");
+var Dotenv = require("dotenv-webpack");
 var config = {
   /* The entry point of the application. Webpack uses this information to create the dependency tree which is used to bundle the scripts.*/
   entry: ["./src/index.ts"],
@@ -37,6 +38,7 @@ var config = {
         ]
       }
     ]
-  }
+  },
+  plugins: [new Dotenv()]
 };
 module.exports = config;
