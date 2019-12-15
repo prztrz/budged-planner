@@ -6,6 +6,7 @@
     "build": "webpack"
   },
   "devDependencies": {
+    "@types/d3": "^5.7.2",
     "css-loader": "^3.3.2",
     "dotenv": "^8.2.0",
     "sass-loader": "^8.0.0",
@@ -19,10 +20,9 @@
   },
   "dependencies": {
     "d3": "^5.14.2",
+    "dotenv": "^8.2.0",
     "dotenv-webpack": "^1.7.0",
     "firebase": "^7.6.0",
-    "materialize-css": "^1.0.0",
-    "sass": "^1.23.7",
-    "dotenv": "^8.2.0"
+    "sass": "^1.23.7"
   }
 }
