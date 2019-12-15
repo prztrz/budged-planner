@@ -6,9 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Budget Planner</title>
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 </head>
 
-<body>
+<body class="indigo">
+    <header class="indigo darken-1 section">
+        <h2 class="center white-text">Budget planner</h2>
+        <p class="flow-text grey-text center text-lighten-2">Monthly money tracker</p>
+    </header>
+
+    <main class="container section">
+        <div class="row">
+            <div class="col s12 m6"></div>
+            <div class="col s12 m5 push-m1">
+                <div class="canvas"></div>
+            </div>
+        </div>
+    </main>
     <script src="./build/bundle.js"></script>
 </body>
 

@@ -1,3 +1,5 @@
+import m from "materialize-css";
+
 window.addEventListener("load", () => {
-  console.log("hello!");
+  console.log({ m });
 });
