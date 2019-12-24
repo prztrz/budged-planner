@@ -16,28 +16,42 @@ const CENTER = { x: DIMENSIONS.width / 2 + 5, y: DIMENSIONS.height / 2 + 5 };
 
 const data: Data[] = [];
 
-const canvas = d3.select(".canvas");
+const COLORS = d3.schemeSet3;
+const colorScale = d3.scaleOrdinal<string>(COLORS);
 
-export const createCanvas = () => {
-  canvas
-    .append("svg")
-    .attr("width", DIMENSIONS.width + 150)
-    .attr("height", DIMENSIONS.height + 150);
-};
+const canvas = d3
+  .select(".canvas")
+  .append("svg")
+  .attr("width", DIMENSIONS.width + 150)
+  .attr("height", DIMENSIONS.height + 150);
 
-const pie = d3.pie<Data>();
+const graph = canvas
+  .append("g")
+  .attr("transform", `translate(${CENTER.x}, ${CENTER.y})`);
+
+// create function that transform data to get pie arcs angles
+const getPieData = d3.pie<Data>();
+getPieData.sort(null).value(d => d.cost);
+
+// create function that returns path attribute for arc of given data
 const getArcPath = d3
-  .arc()
+  .arc<d3.PieArcDatum<Data>>()
   .outerRadius(DIMENSIONS.radius)
   .innerRadius(DIMENSIONS.radius / 2);
 
-export const createGraph = () => {
-  canvas.append("g").attr("transform", `translate(${CENTER.x}, ${CENTER.y})`);
-  pie.sort(null).value(d => d.cost);
-};
-
 const updateGraph = (data: Data[]) => {
-  console.log({ data });
+  //update colorScaleDomain
+  colorScale.domain(data.map(({ name }) => name));
+  const paths = graph.selectAll("path").data(getPieData(data));
+
+  paths
+    .enter()
+    .append("path")
+    .attr("class", "arc")
+    .attr("d", getArcPath)
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 3)
+    .attr("fill", d => colorScale(d.data.name));
 };
 
 export const handleDataRefresh = (res: firestore.QuerySnapshot<Data>) => {

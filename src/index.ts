@@ -1,6 +1,5 @@
 import "./styles/index.scss";
 
-import { createCanvas } from "./graph";
 import { db } from "./db";
 import { handleDataRefresh } from "./graph";
 
@@ -45,8 +44,6 @@ window.addEventListener("load", () => {
       error.textContent = "Enter both  values!";
     }
   });
-
-  createCanvas();
 });
 
 db.collection("expenses").onSnapshot(handleDataRefresh);
