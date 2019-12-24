@@ -14,7 +14,7 @@ const DIMENSIONS = {
 
 const CENTER = { x: DIMENSIONS.width / 2 + 5, y: DIMENSIONS.height / 2 + 5 };
 
-const data: Data[] = [];
+let data: Data[] = [];
 
 const COLORS = d3.schemeSet3;
 const colorScale = d3.scaleOrdinal<string>(COLORS);
@@ -44,6 +44,10 @@ const updateGraph = (data: Data[]) => {
   colorScale.domain(data.map(({ name }) => name));
   const paths = graph.selectAll("path").data(getPieData(data));
 
+  console.log({ enter: paths.enter(), exist: paths.exit(), paths });
+  paths.exit().remove();
+  paths.attr("d", getArcPath);
+
   paths
     .enter()
     .append("path")
@@ -62,9 +66,10 @@ export const handleDataRefresh = (res: firestore.QuerySnapshot<Data>) => {
       case "added":
         data.push(updatedDoc);
         break;
-      case "removed":
-        data.filter(({ id }) => id !== doc.id);
+      case "removed": {
+        data = data.filter(({ id }) => id !== doc.id);
         break;
+      }
       case "modified":
         data[data.findIndex(({ id }) => id === doc.id)] = updatedDoc;
         break;
