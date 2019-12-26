@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { legendColor } from "d3-svg-legend";
+import d3Tip from "d3-tip";
 import { firestore } from "firebase";
 import { Data } from "./types";
 import {
@@ -37,9 +38,22 @@ const legend = legendColor()
   .shapePadding(10)
   .scale(colorScale);
 
+//@ts-ignore https://github.com/Caged/d3-tip/issues/181
+const tooltip = d3Tip()
+  .attr("class", "tip card")
+  .html((d: d3.PieArcDatum<Data>) => {
+    const nameDiv = `<div class="name">${d.data.name}</div>`;
+    const costDiv = `<div class="cost">${d.data.cost}<div>`;
+    const infoDiv = `<div class="delete red-text">Click to delete</div>`;
+
+    return nameDiv + costDiv + infoDiv;
+  });
+
 const graph = canvas
   .append("g")
   .attr("transform", `translate(${CENTER.x}, ${CENTER.y})`);
+
+graph.call(tooltip);
 
 // create function that transform data to get pie arcs angles
 const getPieData = d3.pie<Data>();
@@ -90,9 +104,15 @@ const updateGraph = (data: Data[]) => {
 
   //add events
   graph
-    .selectAll("path")
-    .on("mouseover", handleMouseOver)
-    .on("mouseout", handleMouseOut(colorScale))
+    .selectAll<SVGPathElement, d3.PieArcDatum<Data>>("path")
+    .on("mouseover", (d, i, arr) => {
+      tooltip.show(d, arr[i]);
+      handleMouseOver(d, i, arr);
+    })
+    .on("mouseout", (d, i, arr) => {
+      tooltip.hide(d, i, arr);
+      handleMouseOut(colorScale, d, i, arr);
+    })
     .on("click", handleClick);
 };
 

@@ -19,8 +19,10 @@
     "webpack-dev-server": "^3.9.0"
   },
   "dependencies": {
+    "@types/d3-tip": "^3.5.5",
     "d3": "^5.14.2",
     "d3-svg-legend": "^2.25.6",
+    "d3-tip": "^0.9.1",
     "dotenv": "^8.2.0",
     "dotenv-webpack": "^1.7.0",
     "firebase": "^7.6.0",
