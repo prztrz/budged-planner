@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { legendColor } from "d3-svg-legend";
 import { firestore } from "firebase";
 import { Data } from "./types";
 import {
@@ -26,6 +27,15 @@ const canvas = d3
   .attr("width", DIMENSIONS.width + 150)
   .attr("height", DIMENSIONS.height + 150);
 
+const legendGroup = canvas
+  .append("g")
+  .attr("transform", `translate(${DIMENSIONS.width + 40}, 10)`);
+
+const legend = legendColor()
+  .shape("circle")
+  .shapePadding(10)
+  .scale(colorScale);
+
 const graph = canvas
   .append("g")
   .attr("transform", `translate(${CENTER.x}, ${CENTER.y})`);
@@ -43,6 +53,10 @@ const getArcPath = d3
 const updateGraph = (data: Data[]) => {
   //update colorScaleDomain
   colorScale.domain(data.map(({ name }) => name));
+  //update and call legend
+  legendGroup.call(legend);
+  legendGroup.selectAll("text").attr("fill", "#fff");
+
   const paths = graph.selectAll("path").data(getPieData(data));
 
   paths
