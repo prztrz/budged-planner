@@ -40,7 +40,7 @@ const getArcPath = d3
   .innerRadius(DIMENSIONS.radius / 2);
 
 // tween for arc path transition
-const arcPathTweenInitial = (data: d3.PieArcDatum<Data>) => {
+const arcPathTweenAppear = (data: d3.PieArcDatum<Data>) => {
   const { endAngle, startAngle } = data;
   const interpolation = d3.interpolate(endAngle, startAngle);
 
@@ -54,14 +54,49 @@ const arcPathTweenInitial = (data: d3.PieArcDatum<Data>) => {
   };
 };
 
+const arcPathTweenDisappear = (data: d3.PieArcDatum<Data>) => {
+  const { endAngle, startAngle } = data;
+  const interpolation = d3.interpolate(startAngle, endAngle);
+
+  return (t: number) => {
+    const updatedData = {
+      ...data,
+      startAngle: interpolation(t)
+    };
+
+    return getArcPath(updatedData);
+  };
+};
+
+const arcPathTweenUpdate = (
+  data: d3.PieArcDatum<Data>,
+  i: number,
+  selection: SVGPathElement[]
+) => {
+  const path = selection[i];
+  const previousData = JSON.parse(path.dataset.previous);
+  const interpolation = d3.interpolate(previousData, data);
+
+  return (t: number) => getArcPath(interpolation(t));
+};
+
 const updateGraph = (data: Data[]) => {
   //update colorScaleDomain
   colorScale.domain(data.map(({ name }) => name));
   const paths = graph.selectAll("path").data(getPieData(data));
 
-  console.log({ enter: paths.enter(), exist: paths.exit(), paths });
-  paths.exit().remove();
-  paths.attr("d", getArcPath);
+  paths
+    .exit()
+    .transition()
+    .duration(750)
+    .attrTween("d", arcPathTweenDisappear)
+    .remove();
+
+  paths
+    .transition()
+    .duration(750)
+    .attrTween("d", arcPathTweenUpdate)
+    .attr("data-previous", d => JSON.stringify(d));
 
   paths
     .enter()
@@ -70,10 +105,12 @@ const updateGraph = (data: Data[]) => {
     .attr("stroke", "#fff")
     .attr("stroke-width", 3)
     .attr("fill", d => colorScale(d.data.name))
+    // add data-previous key to every path entering the DOM
+    .attr("data-previous", d => JSON.stringify(d))
     .transition()
     .duration(750)
-    // this tween also handle the start postion of "d" path attribute
-    .attrTween("d", arcPathTweenInitial);
+    // this tween also handle the start position of "d" path attribute
+    .attrTween("d", arcPathTweenAppear);
 };
 
 export const handleDataRefresh = (res: firestore.QuerySnapshot<Data>) => {
