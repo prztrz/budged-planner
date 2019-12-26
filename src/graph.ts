@@ -7,6 +7,7 @@ import {
   arcPathTweenDisappear,
   arcPathTweenUpdate
 } from "./transitionTweens";
+import { handleMouseOver, handleMouseOut, handleClick } from "./eventHandlers";
 
 const DIMENSIONS = {
   height: 300,
@@ -78,6 +79,7 @@ const updateGraph = (data: Data[]) => {
     .attr("class", "arc")
     .attr("stroke", "#fff")
     .attr("stroke-width", 3)
+    .attr("cursor", "pointer")
     .attr("fill", d => colorScale(d.data.name))
     // add data-previous key to every path entering the DOM
     .attr("data-previous", d => JSON.stringify(d))
@@ -85,6 +87,13 @@ const updateGraph = (data: Data[]) => {
     .duration(750)
     // this tween also handle the start position of "d" path attribute
     .attrTween("d", arcPathTweenAppear(getArcPath));
+
+  //add events
+  graph
+    .selectAll("path")
+    .on("mouseover", handleMouseOver)
+    .on("mouseout", handleMouseOut(colorScale))
+    .on("click", handleClick);
 };
 
 export const handleDataRefresh = (res: firestore.QuerySnapshot<Data>) => {
