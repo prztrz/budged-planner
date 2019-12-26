@@ -39,6 +39,21 @@ const getArcPath = d3
   .outerRadius(DIMENSIONS.radius)
   .innerRadius(DIMENSIONS.radius / 2);
 
+// tween for arc path transition
+const arcPathTweenInitial = (data: d3.PieArcDatum<Data>) => {
+  const { endAngle, startAngle } = data;
+  const interpolation = d3.interpolate(endAngle, startAngle);
+
+  return (t: number) => {
+    const updatedData = {
+      ...data,
+      startAngle: interpolation(t)
+    };
+
+    return getArcPath(updatedData);
+  };
+};
+
 const updateGraph = (data: Data[]) => {
   //update colorScaleDomain
   colorScale.domain(data.map(({ name }) => name));
@@ -52,10 +67,13 @@ const updateGraph = (data: Data[]) => {
     .enter()
     .append("path")
     .attr("class", "arc")
-    .attr("d", getArcPath)
     .attr("stroke", "#fff")
     .attr("stroke-width", 3)
-    .attr("fill", d => colorScale(d.data.name));
+    .attr("fill", d => colorScale(d.data.name))
+    .transition()
+    .duration(750)
+    // this tween also handle the start postion of "d" path attribute
+    .attrTween("d", arcPathTweenInitial);
 };
 
 export const handleDataRefresh = (res: firestore.QuerySnapshot<Data>) => {
