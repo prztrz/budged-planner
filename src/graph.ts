@@ -1,11 +1,12 @@
 import * as d3 from "d3";
 import { firestore } from "firebase";
+import { Data } from "./types";
+import {
+  arcPathTweenAppear,
+  arcPathTweenDisappear,
+  arcPathTweenUpdate
+} from "./transitionTweens";
 
-type Data = {
-  name: string;
-  cost: number;
-  id: string;
-};
 const DIMENSIONS = {
   height: 300,
   width: 300,
@@ -39,47 +40,6 @@ const getArcPath = d3
   .outerRadius(DIMENSIONS.radius)
   .innerRadius(DIMENSIONS.radius / 2);
 
-// tween for arc path transition
-const arcPathTweenAppear = (data: d3.PieArcDatum<Data>) => {
-  const { endAngle, startAngle } = data;
-  const interpolation = d3.interpolate(endAngle, startAngle);
-
-  return (t: number) => {
-    const updatedData = {
-      ...data,
-      startAngle: interpolation(t)
-    };
-
-    return getArcPath(updatedData);
-  };
-};
-
-const arcPathTweenDisappear = (data: d3.PieArcDatum<Data>) => {
-  const { endAngle, startAngle } = data;
-  const interpolation = d3.interpolate(startAngle, endAngle);
-
-  return (t: number) => {
-    const updatedData = {
-      ...data,
-      startAngle: interpolation(t)
-    };
-
-    return getArcPath(updatedData);
-  };
-};
-
-const arcPathTweenUpdate = (
-  data: d3.PieArcDatum<Data>,
-  i: number,
-  selection: SVGPathElement[]
-) => {
-  const path = selection[i];
-  const previousData = JSON.parse(path.dataset.previous);
-  const interpolation = d3.interpolate(previousData, data);
-
-  return (t: number) => getArcPath(interpolation(t));
-};
-
 const updateGraph = (data: Data[]) => {
   //update colorScaleDomain
   colorScale.domain(data.map(({ name }) => name));
@@ -89,13 +49,13 @@ const updateGraph = (data: Data[]) => {
     .exit()
     .transition()
     .duration(750)
-    .attrTween("d", arcPathTweenDisappear)
+    .attrTween("d", arcPathTweenDisappear(getArcPath))
     .remove();
 
   paths
     .transition()
     .duration(750)
-    .attrTween("d", arcPathTweenUpdate)
+    .attrTween("d", arcPathTweenUpdate(getArcPath))
     .attr("data-previous", d => JSON.stringify(d));
 
   paths
@@ -110,7 +70,7 @@ const updateGraph = (data: Data[]) => {
     .transition()
     .duration(750)
     // this tween also handle the start position of "d" path attribute
-    .attrTween("d", arcPathTweenAppear);
+    .attrTween("d", arcPathTweenAppear(getArcPath));
 };
 
 export const handleDataRefresh = (res: firestore.QuerySnapshot<Data>) => {
